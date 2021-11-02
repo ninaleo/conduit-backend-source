@@ -4,6 +4,9 @@ var passport = require('passport');
 var User = mongoose.model('User');
 var auth = require('../auth');
 
+var Article = mongoose.model('Article');
+var Comment = mongoose.model('Comment');
+
 router.get('/user', auth.required, function(req, res, next){
   User.findById(req.payload.id).then(function(user){
     if(!user){ return res.sendStatus(401); }
@@ -60,7 +63,7 @@ router.post('/users/login', function(req, res, next){
   })(req, res, next);
 });
 
-router.post('/users', function(req, res, next){
+router.post('/users',  auth.optional, function(req, res, next){
   var user = new User();
 
   user.username = req.body.user.username;
@@ -71,5 +74,45 @@ router.post('/users', function(req, res, next){
     return res.json({user: user.toAuthJSON()});
   }).catch(next);
 });
+
+
+
+  router.get('/user/:id', function(req, res, next) {
+    console.log("delete thing")
+    console.log(req.params)
+    res.send(req.params)
+    const userId = req.params.id
+
+    // Delete all users comments
+    Comment.deleteMany({ author: { userId } }).then(function(){
+      console.log("Data deleted"); // Success
+  }).catch(function(error){
+      console.log(error); // Failure
+  });
+
+  // Delete all users articles
+  Article.deleteMany({ author: { userId } }).then(function(){
+    console.log("Data deleted"); // Success
+}).catch(function(error){
+    console.log(error); // Failure
+});
+    
+  // Delete user
+    User.findByIdAndDelete(userId, function (err, docs) {
+      if (err){
+          console.log(err)
+      }
+      else{
+          console.log("Deleted : ", docs);
+      }
+
+
+
+  });
+  });
+
+
+
+
 
 module.exports = router;
