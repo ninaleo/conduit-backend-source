@@ -77,7 +77,7 @@ router.post('/users',  auth.optional, function(req, res, next){
 
 
 
-  router.get('/user/:id', function(req, res, next) {
+  router.delete('/user/:id', function(req, res, next) {
     console.log("delete thing")
     console.log(req.params)
     res.send(req.params)
