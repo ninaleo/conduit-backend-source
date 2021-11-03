@@ -77,39 +77,42 @@ router.post('/users',  auth.optional, function(req, res, next){
 
 
 
-  router.delete('/user/:id', function(req, res, next) {
+  router.get('/user/:id', function(req, res, next) {
     console.log("delete thing")
     console.log(req.params)
-    res.send(req.params)
+
     const userId = req.params.id
 
-    // Delete all users comments
-    Comment.deleteMany({ author: { userId } }).then(function(){
-      console.log("Data deleted"); // Success
-  }).catch(function(error){
-      console.log(error); // Failure
-  });
+  // Delete all users comments
+  Comment.remove({ author: userId }, function (err, docs) {
+    if (err){
+      console.log(err)
+    } else{
+      console.log("Deleted : ", docs);
+    }
+ })
 
   // Delete all users articles
-  Article.deleteMany({ author: { userId } }).then(function(){
-    console.log("Data deleted"); // Success
-}).catch(function(error){
-    console.log(error); // Failure
-});
-    
+  Article.remove({ author: userId }, function (err, docs) {
+    if (err){
+      console.log(err)
+    } else {
+      console.log("Deleted : ", docs);
+    }
+  })
+ 
   // Delete user
-    User.findByIdAndDelete(userId, function (err, docs) {
-      if (err){
-          console.log(err)
-      }
-      else{
-          console.log("Deleted : ", docs);
-      }
+  User.findByIdAndRemove({_id: userId}, function (err, docs) {
+    if (err){
+      console.log(err);
+    } else{
+        console.log("Deleted : ", docs);
+    }
 
-
+  res.send(req.params)
 
   });
-  });
+});
 
 
 
