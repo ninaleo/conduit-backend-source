@@ -77,11 +77,8 @@ router.post('/users',  auth.optional, function(req, res, next){
 
 
 
-  router.get('/user/:id', function(req, res, next) {
-    console.log("delete thing")
-    console.log(req.params)
-
-    const userId = req.params.id
+router.delete('/user', auth.required, function(req, res, next){
+    const userId = req.payload.id
 
   // Delete all users comments
   Comment.remove({ author: userId }, function (err, docs) {
