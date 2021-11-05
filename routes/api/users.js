@@ -4,6 +4,9 @@ var passport = require('passport');
 var User = mongoose.model('User');
 var auth = require('../auth');
 
+var Article = mongoose.model('Article');
+var Comment = mongoose.model('Comment');
+
 router.get('/user', auth.required, function(req, res, next){
   User.findById(req.payload.id).then(function(user){
     if(!user){ return res.sendStatus(401); }
@@ -60,7 +63,7 @@ router.post('/users/login', function(req, res, next){
   })(req, res, next);
 });
 
-router.post('/users', function(req, res, next){
+router.post('/users',  auth.optional, function(req, res, next){
   var user = new User();
 
   user.username = req.body.user.username;
@@ -71,5 +74,52 @@ router.post('/users', function(req, res, next){
     return res.json({user: user.toAuthJSON()});
   }).catch(next);
 });
+
+
+
+router.delete('/user', auth.required, function(req, res, next){
+  const userId = req.payload.id
+
+  // Delete all users comments
+  Comment.remove({ author: userId }, function (err, docs) {
+    if (err){
+      console.log(err)
+      res.status(500);
+      return res.send({errors: {deleteUser: "Something went wrong with the deletion of your account."}});
+    }
+    else{
+      console.log("Deleted : ", docs);
+    }
+  })
+
+  // Delete all users articles
+  Article.remove({ author: userId }, function (err, docs) {
+    if (err){
+      console.log(err)
+      res.status(500);
+      return res.send({errors: {deleteUser: "Something went wrong with the deletion of your account."}});
+    } else {
+      console.log("Deleted : ", docs);
+    }
+  })
+ 
+  // Delete user
+  User.findByIdAndRemove({_id: userId}, function (err, docs) {
+    if (err){
+      console.log(err);
+      res.status(500);
+      return res.send({errors: {deleteUser: "Something went wrong with the deletion of your account."}});
+    } else{
+        console.log("Deleted : ", docs);
+    }
+  });
+
+  res.status(200);
+  return res.send({user: req.payload.user});
+});
+
+
+
+
 
 module.exports = router;
