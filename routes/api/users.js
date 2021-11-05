@@ -78,21 +78,26 @@ router.post('/users',  auth.optional, function(req, res, next){
 
 
 router.delete('/user', auth.required, function(req, res, next){
-    const userId = req.payload.id
+  const userId = req.payload.id
 
   // Delete all users comments
   Comment.remove({ author: userId }, function (err, docs) {
     if (err){
       console.log(err)
-    } else{
+      res.status(500);
+      return res.send({errors: {deleteUser: "Something went wrong with the deletion of your account."}});
+    }
+    else{
       console.log("Deleted : ", docs);
     }
- })
+  })
 
   // Delete all users articles
   Article.remove({ author: userId }, function (err, docs) {
     if (err){
       console.log(err)
+      res.status(500);
+      return res.send({errors: {deleteUser: "Something went wrong with the deletion of your account."}});
     } else {
       console.log("Deleted : ", docs);
     }
@@ -102,13 +107,15 @@ router.delete('/user', auth.required, function(req, res, next){
   User.findByIdAndRemove({_id: userId}, function (err, docs) {
     if (err){
       console.log(err);
+      res.status(500);
+      return res.send({errors: {deleteUser: "Something went wrong with the deletion of your account."}});
     } else{
         console.log("Deleted : ", docs);
     }
-
-  res.send(req.params)
-
   });
+
+  res.status(200);
+  return res.send({user: req.payload.user});
 });
 
 
