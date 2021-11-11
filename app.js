@@ -7,7 +7,9 @@ var http = require('http'),
     cors = require('cors'),
     passport = require('passport'),
     errorhandler = require('errorhandler'),
-    mongoose = require('mongoose');
+    mongoose = require('mongoose'),
+    morgan = require('morgan'),
+    fs = require('fs');
 
 var isProduction = process.env.NODE_ENV === 'production';
 
@@ -16,7 +18,16 @@ var app = express();
 
 app.use(cors());
 
+// create a write stream (in append mode)
+var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
+
+// setup the logger
+app.use(morgan(':date[clf] :http-version :method :referrer :remote-addr :remote-user :req[header] :res[header] :response-time[3] :status  :url :user-agent', { stream: accessLogStream }))
+//app.use(morgan(':date[clf] :method :referrer :remote-addr :remote-user  :status  :url :user-agent', { stream: accessLogStream }))
+// ':http-version :method :referrer :remote-addr :remote-user :req[header] :res[header] :response-time[digits] :status :total-time[digits] :url :user-agent'
+// :total-time[3]
 // Normal express config defaults
+// käyttäjätunnus, ajanhetki, suoritettu toiminto, mahdollinen status
 app.use(require('morgan')('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
