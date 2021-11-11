@@ -21,12 +21,24 @@ app.use(cors());
 // create a write stream (in append mode)
 var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
 
+// custom token to get username
+morgan.token('username', function (req, res) { 
+
+  if (req.payload == undefined){
+    var username = "Guest"
+  }
+  else{
+    var username = req.payload.username
+  }
+
+  //var username = req.user ? req.user.username: "Guest";
+
+  return username;
+});
 // setup the logger
-app.use(morgan(':date[clf] :http-version :method :referrer :remote-addr :remote-user :req[header] :res[header] :response-time[3] :status  :url :user-agent', { stream: accessLogStream }))
-//app.use(morgan(':date[clf] :method :referrer :remote-addr :remote-user  :status  :url :user-agent', { stream: accessLogStream }))
-// ':http-version :method :referrer :remote-addr :remote-user :req[header] :res[header] :response-time[digits] :status :total-time[digits] :url :user-agent'
-// :total-time[3]
-// Normal express config defaults
+app.use(morgan(':username :date[clf] :url :status :remote-addr  :req[header] :response-time[3]' , { stream: accessLogStream }))
+//app.use(morgan(':date[clf] :method :referrer :remote-addr :remote-user  :status  :url :user-agent :total-time[3]' , { stream: accessLogStream }))
+
 // käyttäjätunnus, ajanhetki, suoritettu toiminto, mahdollinen status
 app.use(require('morgan')('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
