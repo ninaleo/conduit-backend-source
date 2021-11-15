@@ -7,7 +7,9 @@ var http = require('http'),
     cors = require('cors'),
     passport = require('passport'),
     errorhandler = require('errorhandler'),
-    mongoose = require('mongoose');
+    mongoose = require('mongoose'),
+    morgan = require('morgan'),
+    fs = require('fs');
 
 var isProduction = process.env.NODE_ENV === 'production';
 
@@ -16,7 +18,38 @@ var app = express();
 
 app.use(cors());
 
-// Normal express config defaults
+// create a write stream (in append mode)
+var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
+
+// custom token to get username
+morgan.token('username', function (req, res) { 
+
+  if (req.payload == undefined){
+    var username = "Guest"
+  }
+  else{
+    var username = req.payload.username
+  }
+
+  //var username = req.user ? req.user.username: "Guest";
+
+  return username;
+});
+
+
+morgan.token('semi-colon', function (req, res) { 
+
+  var semiColon = ";"
+
+  return semiColon;
+});
+
+
+// setup the logger
+app.use(morgan(':username :semi-colon :date[clf] :semi-colon :url :semi-colon :status :semi-colon :remote-addr :semi-colon  :req[header] :semi-colon :response-time[3]' , { stream: accessLogStream }))
+//app.use(morgan(':date[clf] :method :referrer :remote-addr :remote-user  :status  :url :user-agent :total-time[3]' , { stream: accessLogStream }))
+
+// käyttäjätunnus, ajanhetki, suoritettu toiminto, mahdollinen status
 app.use(require('morgan')('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
