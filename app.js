@@ -35,8 +35,18 @@ morgan.token('username', function (req, res) {
 
   return username;
 });
+
+
+morgan.token('semi-colon', function (req, res) { 
+
+  var semiColon = ";"
+
+  return semiColon;
+});
+
+
 // setup the logger
-app.use(morgan(':username :date[clf] :url :status :remote-addr  :req[header] :response-time[3]' , { stream: accessLogStream }))
+app.use(morgan(':username :semi-colon :date[clf] :semi-colon :url :semi-colon :status :semi-colon :remote-addr :semi-colon  :req[header] :semi-colon :response-time[3]' , { stream: accessLogStream }))
 //app.use(morgan(':date[clf] :method :referrer :remote-addr :remote-user  :status  :url :user-agent :total-time[3]' , { stream: accessLogStream }))
 
 // käyttäjätunnus, ajanhetki, suoritettu toiminto, mahdollinen status
