@@ -36,7 +36,7 @@ morgan.token('username', function (req, res) {
   return username;
 });
 
-
+// morgan custom token for semi-colon to make log more readable
 morgan.token('semi-colon', function (req, res) { 
 
   var semiColon = ";"
@@ -44,12 +44,16 @@ morgan.token('semi-colon', function (req, res) {
   return semiColon;
 });
 
+  // Create custom client IP token - workaround for docker/nginx proxy
+  morgan.token('clientaddr', (req, res) => {
+    return req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+});
+
 
 // setup the logger
-app.use(morgan(':username :semi-colon :date[clf] :semi-colon :url :semi-colon :status :semi-colon :remote-addr :semi-colon :response-time[3]' , { stream: accessLogStream }))
-//app.use(morgan(':date[clf] :method :referrer :remote-addr :remote-user  :status  :url :user-agent :total-time[3]' , { stream: accessLogStream }))
+app.use(morgan(':username :semi-colon :date[clf] :semi-colon :url :semi-colon :status :semi-colon :clientaddr :semi-colon :response-time[3]' , { stream: accessLogStream }))
 
-// käyttäjätunnus, ajanhetki, suoritettu toiminto, mahdollinen status
+
 app.use(require('morgan')('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
